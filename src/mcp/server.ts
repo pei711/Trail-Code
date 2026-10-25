@@ -13,6 +13,7 @@ import { maybeFlushInBackground, track } from '../telemetry/index.js';
 import { brand, inBrand } from '../brand.js';
 import { canonicalToolName } from './tool-names.js';
 import { BRAIN_TOOL_DEFS, BrainProxy, isBrainTool } from './brains.js';
+import { handleMcpStdoutError } from './stdio.js';
 
 /**
  * MCP tool name → the command enum the telemetry contract knows. A tool absent
@@ -82,6 +83,7 @@ function advertised(root: string, dirOverride?: string): typeof TOOLS {
  * lookup misses. The caller already knows it.
  */
 export function startMcpServer(root: string, dirOverride?: string, version = '0', opts: { brainsOnly?: boolean } = {}): void {
+  process.stdout.on('error', handleMcpStdoutError);
   // `trail mcp --brains`: the one entry Claude Code gets once connected to a
   // workspace. It serves the workspace's brain tools and nothing of the repo's,
   // so it does none of the repo upkeep either: it starts in every project.
